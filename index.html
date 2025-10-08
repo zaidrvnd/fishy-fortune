@@ -19,8 +19,22 @@
         </header>
 
         <main>
+            <!-- User Info Display -->
+            <div id="user-info" class="user-info">
+                <div class="user-avatar">
+                    <img id="user-pfp" src="" alt="Profile" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 fill=%22%236b7280%22/><text x=%2220%22 y=%2225%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22white%22 text-anchor=%22middle%22>?</text></svg>'">
+                </div>
+                <div class="user-details">
+                    <div id="user-name" class="user-name">Loading...</div>
+                    <div id="user-handle" class="user-handle">@loading</div>
+                </div>
+            </div>
+
+            <!-- Fullscreen Fishing Animation -->
             <div id="game-container">
-                <canvas id="fishing-canvas" width="400" height="300"></canvas>
+                <canvas id="fishing-canvas"></canvas>
+
+                <!-- Floating UI Elements -->
                 <div id="game-ui">
                     <button id="fish-button" class="fish-btn">🎣 Mulai Memancing!</button>
                     <div id="result-display" class="result hidden">
@@ -30,16 +44,17 @@
                         <button id="play-again-button" class="play-again-btn hidden">🎮 Main Lagi</button>
                     </div>
                 </div>
-            </div>
 
-            <div id="stats">
-                <div class="stat-item">
-                    <span class="stat-label">Total Memancing:</span>
-                    <span id="total-fishes" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Token Didapat:</span>
-                    <span id="total-tokens" class="stat-value">0</span>
+                <!-- Stats Overlay -->
+                <div id="stats-overlay">
+                    <div class="stat-item">
+                        <span class="stat-label">🎣 Memancing:</span>
+                        <span id="total-fishes" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">💎 Token:</span>
+                        <span id="total-tokens" class="stat-value">0</span>
+                    </div>
                 </div>
             </div>
         </main>

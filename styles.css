@@ -34,12 +34,14 @@ body {
 }
 
 #app {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 16px;
-    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    background: #0f172a;
+    overflow: hidden;
 }
 
 /* Header */
@@ -48,62 +50,106 @@ header {
     margin-bottom: 24px;
 }
 
-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 8px;
+/* User Info Display */
+#user-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid #334155;
+    border-radius: 12px;
+    padding: 12px 16px;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-header p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #60a5fa;
+    margin-right: 12px;
 }
 
-/* Main Game Container */
-#game-container {
-    background-color: var(--surface-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    padding: 20px;
-    margin-bottom: 24px;
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details {
     display: flex;
     flex-direction: column;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 2px;
+}
+
+.user-handle {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* Fullscreen Game Container */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 #fishing-canvas {
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background: #1e3a8a; /* Pixel art blue background */
-    margin-bottom: 20px;
-    max-width: 100%;
-    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0f172a;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    z-index: 1;
 }
 
-/* Game UI */
+/* Floating Game UI */
 #game-ui {
-    width: 100%;
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
+    z-index: 5;
 }
 
 .fish-btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 16px 32px;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--shadow);
-    min-width: 200px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    min-width: 220px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 .fish-btn:hover {
@@ -213,34 +259,41 @@ header p {
     display: none;
 }
 
-/* Stats */
-#stats {
+/* Stats Overlay */
+#stats-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     display: flex;
-    justify-content: space-between;
-    background-color: var(--surface-color);
-    border-radius: var(--border-radius);
-    padding: 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 24px;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
 }
 
 .stat-item {
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid #334155;
+    border-radius: 12px;
+    padding: 12px 16px;
     text-align: center;
-    flex: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 120px;
 }
 
 .stat-label {
     display: block;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 0.75rem;
+    color: #94a3b8;
     margin-bottom: 4px;
+    font-weight: 500;
 }
 
 .stat-value {
     display: block;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: #f1f5f9;
 }
 
 /* Footer */

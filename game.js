@@ -63,8 +63,11 @@
             elements.playAgainButton = document.getElementById('play-again-button');
             elements.totalFishes = document.getElementById('total-fishes');
             elements.totalTokens = document.getElementById('total-tokens');
+            elements.userPfp = document.getElementById('user-pfp');
+            elements.userName = document.getElementById('user-name');
+            elements.userHandle = document.getElementById('user-handle');
 
-            // Initialize canvas
+            // Initialize fullscreen canvas
             canvas = document.getElementById('fishing-canvas');
             if (!canvas) {
                 throw new Error('Canvas element not found');
@@ -74,8 +77,14 @@
                 throw new Error('Canvas context not available');
             }
 
+            // Set canvas to fullscreen
+            resizeCanvas();
+
             // Set up event listeners
             setupEventListeners();
+
+            // Initialize user info
+            initializeUserInfo();
 
             // Draw initial scene
             drawInitialScene();
@@ -196,7 +205,7 @@
         drawHook(CONFIG.CANVAS_WIDTH / 2, 150);
     }
 
-    // Draw pixel art water background
+    // Draw pixel art water background with swimming fish
     function drawWater() {
         // Pixel art water with blocks
         const blockSize = 8;
@@ -228,22 +237,94 @@
             const waveY = 80 + Math.sin((x + Date.now() * 0.003) * 0.05) * 4;
             ctx.fillRect(x, waveY, 8, 4);
         }
+
+        // Draw swimming fish
+        drawSwimmingFish();
     }
 
-    // Draw pixel art fishing rod
+    // Draw swimming fish in the background
+    function drawSwimmingFish() {
+        const time = Date.now() * 0.001;
+
+        // Create multiple fish at different depths
+        for (let i = 0; i < 5; i++) {
+            const fishId = i;
+            const baseY = 120 + i * 60; // Different depths
+            const speed = 0.5 + i * 0.2; // Different speeds
+            const amplitude = 10 + i * 5; // Different wave amplitudes
+
+            // Calculate fish position
+            const x = (time * speed * 50 + fishId * 200) % (CONFIG.CANVAS_WIDTH + 100) - 50;
+            const y = baseY + Math.sin(time * speed + fishId) * amplitude;
+
+            // Only draw if fish is visible
+            if (x > -50 && x < CONFIG.CANVAS_WIDTH + 50) {
+                drawPixelFish(x, y, fishId);
+            }
+        }
+    }
+
+    // Draw a single pixel art fish
+    function drawPixelFish(x, y, fishId) {
+        const time = Date.now() * 0.001;
+        const wiggle = Math.sin(time * 3 + fishId) * 2;
+
+        // Fish body (different colors for variety)
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b'];
+        ctx.fillStyle = colors[fishId % colors.length];
+
+        // Main body
+        ctx.fillRect(x - 8, y - 2, 16, 4);
+
+        // Tail
+        ctx.fillRect(x - 12, y - 1, 4, 2);
+
+        // Fins
+        ctx.fillRect(x - 4, y - 4, 2, 2);
+        ctx.fillRect(x + 2, y - 4, 2, 2);
+
+        // Eye
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + 4, y - 1, 2, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x + 5, y - 1, 1, 1);
+
+        // Add slight wiggle animation
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(wiggle * 0.1);
+        ctx.restore();
+    }
+
+    // Draw pixel art fishing line and hook only (no fisherman)
     function drawFishingRod() {
         const centerX = CONFIG.CANVAS_WIDTH / 2;
+        const time = Date.now() * 0.001;
 
-        // Rod body (brown pixels)
-        ctx.fillStyle = '#8B4513';
-        for (let i = 0; i < 8; i++) {
-            ctx.fillRect(centerX - 16 + i * 4, 20 + i * 8, 4, 8);
-        }
+        // Fishing line (thin vertical line from top to hook)
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]); // Dashed line
+        ctx.beginPath();
+        ctx.moveTo(centerX, 0);
+        ctx.lineTo(centerX, CONFIG.CANVAS_HEIGHT * 0.6);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset dash
 
-        // Rod tip (darker brown)
-        ctx.fillStyle = '#654321';
-        ctx.fillRect(centerX + 24, 52, 8, 4);
-        ctx.fillRect(centerX + 28, 48, 4, 8);
+        // Hook at the end of the line
+        const hookY = CONFIG.CANVAS_HEIGHT * 0.6;
+        const wiggle = Math.sin(time * 2) * 3; // Gentle wiggle
+
+        ctx.fillStyle = '#374151';
+        // Hook curve
+        ctx.fillRect(centerX - 6 + wiggle, hookY - 2, 12, 4);
+        // Hook point
+        ctx.fillRect(centerX + 4 + wiggle, hookY - 4, 4, 2);
+        ctx.fillRect(centerX + 6 + wiggle, hookY - 2, 2, 4);
+
+        // Add some shine to the hook
+        ctx.fillStyle = '#9ca3af';
+        ctx.fillRect(centerX - 4 + wiggle, hookY - 1, 2, 2);
     }
 
     // Draw fishing line
@@ -426,6 +507,44 @@
             document.body.removeChild(errorDiv);
         }, 5000);
     }
+
+    // Resize canvas to fullscreen
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+
+        // Set actual canvas size
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+
+        // Scale context to match device pixel ratio
+        ctx.scale(dpr, dpr);
+
+        // Set display size
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+
+        CONFIG.CANVAS_WIDTH = rect.width;
+        CONFIG.CANVAS_HEIGHT = rect.height;
+    }
+
+    // Initialize user info from Farcaster
+    function initializeUserInfo() {
+        if (window.farcasterSDK && window.farcasterSDK.context) {
+            const user = window.farcasterSDK.context.user;
+            if (user) {
+                elements.userPfp.src = user.pfpUrl || '';
+                elements.userName.textContent = user.displayName || user.username || 'Anonymous';
+                elements.userHandle.textContent = `@${user.username || 'unknown'}`;
+            }
+        }
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        drawInitialScene();
+    });
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
