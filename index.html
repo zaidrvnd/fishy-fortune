@@ -68,11 +68,30 @@
     <script type="module">
         import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
 
-        // Initialize app when SDK is ready
+        // Make SDK globally available
         window.farcasterSDK = sdk;
 
-        // Call ready when app is loaded
-        sdk.actions.ready().catch(console.error);
+        // Initialize app
+        const initializeApp = async () => {
+            try {
+                // Call ready to hide splash screen
+                await sdk.actions.ready();
+                console.log('Farcaster SDK ready, context:', sdk.context);
+
+                // Small delay to ensure context is fully populated
+                setTimeout(() => {
+                    if (window.updateUserInfo) {
+                        window.updateUserInfo();
+                    }
+                }, 100);
+
+            } catch (error) {
+                console.error('Failed to initialize Farcaster SDK:', error);
+            }
+        };
+
+        // Start initialization
+        initializeApp();
     </script>
 
     <!-- Game Logic -->

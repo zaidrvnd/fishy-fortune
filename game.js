@@ -88,7 +88,9 @@
 
             // Listen for context updates
             if (window.farcasterSDK) {
-                window.farcasterSDK.on('context', () => {
+                // Listen for context ready event
+                window.farcasterSDK.on('context', (context) => {
+                    console.log('Context updated:', context);
                     initializeUserInfo();
                 });
             }
@@ -573,6 +575,42 @@
             elements.userHandle.textContent = '@unknown';
         }
     }
+
+    // Global function to update user info (called from HTML)
+    window.updateUserInfo = function() {
+        console.log('updateUserInfo called');
+
+        // Try to get user info directly from SDK context
+        try {
+            if (window.farcasterSDK && window.farcasterSDK.context && window.farcasterSDK.context.user) {
+                const user = window.farcasterSDK.context.user;
+                console.log('User from SDK context:', user);
+
+                // Safely set image src
+                const pfpUrl = user.pfpUrl;
+                if (pfpUrl && typeof pfpUrl === 'string') {
+                    elements.userPfp.src = pfpUrl;
+                }
+
+                // Set user name and handle
+                const displayName = user.displayName || user.username || 'Anonymous';
+                const username = user.username || 'unknown';
+
+                elements.userName.textContent = displayName;
+                elements.userHandle.textContent = `@${username}`;
+
+                console.log('User info updated successfully:', { displayName, username, pfpUrl });
+            } else {
+                console.log('SDK context not available, using fallback');
+                elements.userName.textContent = 'Anonymous';
+                elements.userHandle.textContent = '@unknown';
+            }
+        } catch (error) {
+            console.error('Error updating user info:', error);
+            elements.userName.textContent = 'Anonymous';
+            elements.userHandle.textContent = '@unknown';
+        }
+    };
 
     // Handle window resize
     window.addEventListener('resize', () => {
