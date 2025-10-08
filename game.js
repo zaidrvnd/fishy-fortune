@@ -83,8 +83,15 @@
             // Set up event listeners
             setupEventListeners();
 
-            // Initialize user info
+            // Initialize user info after SDK is ready
             initializeUserInfo();
+
+            // Listen for context updates
+            if (window.farcasterSDK) {
+                window.farcasterSDK.on('context', () => {
+                    initializeUserInfo();
+                });
+            }
 
             // Draw initial scene
             drawInitialScene();
@@ -530,13 +537,40 @@
 
     // Initialize user info from Farcaster
     function initializeUserInfo() {
-        if (window.farcasterSDK && window.farcasterSDK.context) {
-            const user = window.farcasterSDK.context.user;
-            if (user) {
-                elements.userPfp.src = user.pfpUrl || '';
-                elements.userName.textContent = user.displayName || user.username || 'Anonymous';
-                elements.userHandle.textContent = `@${user.username || 'unknown'}`;
+        try {
+            // Check if SDK and context are available
+            if (window.farcasterSDK && window.farcasterSDK.context && window.farcasterSDK.context.user) {
+                const user = window.farcasterSDK.context.user;
+
+                // Safely set image src
+                const pfpUrl = user.pfpUrl;
+                if (pfpUrl && typeof pfpUrl === 'string') {
+                    elements.userPfp.src = pfpUrl;
+                }
+
+                // Set user name and handle
+                const displayName = user.displayName || user.username || 'Anonymous';
+                const username = user.username || 'unknown';
+
+                elements.userName.textContent = displayName;
+                elements.userHandle.textContent = `@${username}`;
+
+                console.log('User info initialized:', { displayName, username, pfpUrl });
+            } else {
+                // Context not ready yet, show loading state
+                elements.userName.textContent = 'Loading...';
+                elements.userHandle.textContent = '@loading';
+
+                // Try again in 500ms if still loading
+                if (!window.farcasterSDK || !window.farcasterSDK.context) {
+                    setTimeout(initializeUserInfo, 500);
+                }
             }
+        } catch (error) {
+            console.warn('Failed to initialize user info:', error);
+            // Fallback values
+            elements.userName.textContent = 'Anonymous';
+            elements.userHandle.textContent = '@unknown';
         }
     }
 
