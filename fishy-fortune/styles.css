@@ -1,0 +1,318 @@
+/* Fishy Fortune - Farcaster Mini App Styles */
+/* Best practices: Clean, modular CSS with mobile-first approach */
+
+:root {
+    --primary-color: #1e40af;
+    --secondary-color: #3b82f6;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --background-color: #f8fafc;
+    --surface-color: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Main Game Container */
+#game-container {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#fishing-canvas {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: #1e3a8a; /* Pixel art blue background */
+    margin-bottom: 20px;
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Game UI */
+#game-ui {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fish-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    min-width: 200px;
+}
+
+.fish-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+}
+
+.fish-btn:active {
+    transform: translateY(0);
+}
+
+.fish-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Result Display */
+.result {
+    margin-top: 20px;
+    text-align: center;
+    padding: 16px;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 300px;
+}
+
+.result.hidden {
+    display: none;
+}
+
+.result.common {
+    background-color: #f3f4f6;
+    border: 2px solid var(--text-secondary);
+}
+
+.result.rare {
+    background-color: #dbeafe;
+    border: 2px solid var(--secondary-color);
+}
+
+.result.legendary {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid var(--accent-color);
+    animation: pixelGlow 1s step-end infinite alternate;
+    position: relative;
+}
+
+.result.legendary::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(245, 158, 11, 0.3) 2px,
+        rgba(245, 158, 11, 0.3) 4px
+    );
+    animation: pixelBorder 0.5s step-end infinite;
+    pointer-events: none;
+}
+
+@keyframes pixelGlow {
+    0% { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5); }
+    100% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.8); }
+}
+
+@keyframes pixelBorder {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+#result-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+#result-description {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.share-btn, .play-again-btn {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin: 4px;
+}
+
+.share-btn:hover, .play-again-btn:hover {
+    background-color: #059669;
+}
+
+.share-btn.hidden, .play-again-btn.hidden {
+    display: none;
+}
+
+/* Stats */
+#stats {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    #app {
+        padding: 12px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    #fishing-canvas {
+        width: 100%;
+        height: 200px;
+    }
+
+    #stats {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .fish-btn {
+        min-width: 180px;
+        padding: 10px 20px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus states for keyboard navigation */
+.fish-btn:focus,
+.share-btn:focus,
+.play-again-btn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

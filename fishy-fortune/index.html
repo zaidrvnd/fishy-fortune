@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishy Fortune - Farcaster Mini App</title>
+    <meta name="description" content="Game gacha memancing ala Farcaster. Dapatkan ikan biasa, langka, atau legendary!">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Farcaster Mini App Embed Meta Tags -->
+    <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fishing-scene.png","button":{"title":"🎮 Mulai Memancing","action":{"type":"launch_miniapp","name":"Fishy Fortune","url":"https://fishy-fortune.example.com","splashImageUrl":"https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fish-icon.png","splashBackgroundColor":"#1e3a8a"}}}' />
+    <!-- Fallback for backward compatibility -->
+    <meta name="fc:frame" content='{"version":"1","imageUrl":"https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fishing-scene.png","button":{"title":"🎮 Mulai Memancing","action":{"type":"launch_frame","name":"Fishy Fortune","url":"https://fishy-fortune.example.com","splashImageUrl":"https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fish-icon.png","splashBackgroundColor":"#1e3a8a"}}}' />
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>🐟 Fishy Fortune</h1>
+            <p>Game Gacha Memancing Ala Farcaster</p>
+        </header>
+
+        <main>
+            <div id="game-container">
+                <canvas id="fishing-canvas" width="400" height="300"></canvas>
+                <div id="game-ui">
+                    <button id="fish-button" class="fish-btn">🎣 Mulai Memancing!</button>
+                    <div id="result-display" class="result hidden">
+                        <h2 id="result-title"></h2>
+                        <p id="result-description"></p>
+                        <button id="share-button" class="share-btn hidden">📤 Share ke Feed</button>
+                        <button id="play-again-button" class="play-again-btn hidden">🎮 Main Lagi</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Total Memancing:</span>
+                    <span id="total-fishes" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Token Didapat:</span>
+                    <span id="total-tokens" class="stat-value">0</span>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Mini App untuk Farcaster • Dibuat dengan ❤️</p>
+        </footer>
+    </div>
+
+    <!-- Farcaster Mini App SDK -->
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+
+        // Initialize app when SDK is ready
+        window.farcasterSDK = sdk;
+
+        // Call ready when app is loaded
+        sdk.actions.ready().catch(console.error);
+    </script>
+
+    <!-- Game Logic -->
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,444 @@
+// Fishy Fortune - Farcaster Mini App Game Logic
+// Best practices: Modular, clean code with error handling and separation of concerns
+
+(function() {
+    'use strict';
+
+    // Game Configuration
+    const CONFIG = {
+        FISH_TYPES: {
+            common: {
+                name: 'Ikan Biasa',
+                emoji: '🐟',
+                description: 'Ikan biasa yang lumrah',
+                rarity: 'common',
+                tokenReward: 0,
+                probability: 0.7
+            },
+            rare: {
+                name: 'Ikan Langka',
+                emoji: '🐠',
+                description: 'Ikan yang cukup jarang ditemukan',
+                rarity: 'rare',
+                tokenReward: 5,
+                probability: 0.25
+            },
+            legendary: {
+                name: 'Ikan Legendary',
+                emoji: '🐡',
+                description: 'Ikan legenda yang sangat langka!',
+                rarity: 'legendary',
+                tokenReward: 50,
+                probability: 0.05
+            }
+        },
+        ANIMATION_DURATION: 2000, // 2 seconds
+        CANVAS_WIDTH: 400,
+        CANVAS_HEIGHT: 300
+    };
+
+    // Game State
+    let gameState = {
+        isPlaying: false,
+        totalFishes: 0,
+        totalTokens: 0,
+        currentResult: null
+    };
+
+    // DOM Elements
+    const elements = {};
+
+    // Canvas Context
+    let canvas, ctx;
+
+    // Initialize the game
+    function init() {
+        try {
+            // Cache DOM elements
+            elements.fishButton = document.getElementById('fish-button');
+            elements.resultDisplay = document.getElementById('result-display');
+            elements.resultTitle = document.getElementById('result-title');
+            elements.resultDescription = document.getElementById('result-description');
+            elements.shareButton = document.getElementById('share-button');
+            elements.playAgainButton = document.getElementById('play-again-button');
+            elements.totalFishes = document.getElementById('total-fishes');
+            elements.totalTokens = document.getElementById('total-tokens');
+
+            // Initialize canvas
+            canvas = document.getElementById('fishing-canvas');
+            if (!canvas) {
+                throw new Error('Canvas element not found');
+            }
+            ctx = canvas.getContext('2d');
+            if (!ctx) {
+                throw new Error('Canvas context not available');
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+
+            // Draw initial scene
+            drawInitialScene();
+
+            // Load saved game state
+            loadGameState();
+
+            console.log('Fishy Fortune game initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize game:', error);
+            showError('Gagal memuat game. Silakan refresh halaman.');
+        }
+    }
+
+    // Set up event listeners
+    function setupEventListeners() {
+        if (elements.fishButton) {
+            elements.fishButton.addEventListener('click', startFishing);
+        }
+
+        if (elements.shareButton) {
+            elements.shareButton.addEventListener('click', shareResult);
+        }
+
+        if (elements.playAgainButton) {
+            elements.playAgainButton.addEventListener('click', resetGame);
+        }
+    }
+
+    // Start fishing animation and logic
+    function startFishing() {
+        if (gameState.isPlaying) return;
+
+        gameState.isPlaying = true;
+        elements.fishButton.disabled = true;
+        elements.fishButton.classList.add('loading');
+        elements.fishButton.textContent = 'Sedang Memancing...';
+
+        // Hide previous result
+        elements.resultDisplay.classList.add('hidden');
+
+        // Start animation
+        animateFishing().then(() => {
+            // Determine result
+            const result = rollGacha();
+            showResult(result);
+        }).catch(error => {
+            console.error('Fishing animation failed:', error);
+            resetGame();
+        });
+    }
+
+    // Gacha logic with weighted random selection
+    function rollGacha() {
+        const roll = Math.random();
+        let cumulativeProbability = 0;
+
+        for (const [key, fish] of Object.entries(CONFIG.FISH_TYPES)) {
+            cumulativeProbability += fish.probability;
+            if (roll < cumulativeProbability) {
+                return fish;
+            }
+        }
+
+        // Fallback to common fish
+        return CONFIG.FISH_TYPES.common;
+    }
+
+    // Animate fishing process
+    function animateFishing() {
+        return new Promise((resolve) => {
+            let startTime = Date.now();
+            let hookPosition = { x: CONFIG.CANVAS_WIDTH / 2, y: 50 };
+            let lineLength = 0;
+            const maxLineLength = CONFIG.CANVAS_HEIGHT - 100;
+
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / CONFIG.ANIMATION_DURATION, 1);
+
+                // Clear canvas
+                ctx.clearRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+
+                // Draw water background
+                drawWater();
+
+                // Draw fishing rod
+                drawFishingRod();
+
+                // Animate fishing line
+                lineLength = progress * maxLineLength;
+                drawFishingLine(hookPosition.x, 80, hookPosition.x, 80 + lineLength);
+
+                // Draw hook
+                drawHook(hookPosition.x, 80 + lineLength);
+
+                // Add some bubbles for effect
+                drawBubbles(progress);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Add a small delay before resolving
+                    setTimeout(resolve, 500);
+                }
+            }
+
+            animate();
+        });
+    }
+
+    // Draw initial scene
+    function drawInitialScene() {
+        ctx.clearRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+        drawWater();
+        drawFishingRod();
+        drawFishingLine(CONFIG.CANVAS_WIDTH / 2, 80, CONFIG.CANVAS_WIDTH / 2, 150);
+        drawHook(CONFIG.CANVAS_WIDTH / 2, 150);
+    }
+
+    // Draw pixel art water background
+    function drawWater() {
+        // Pixel art water with blocks
+        const blockSize = 8;
+        for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += blockSize) {
+            for (let y = 80; y < CONFIG.CANVAS_HEIGHT; y += blockSize) {
+                // Create wave pattern
+                const waveOffset = Math.sin((x + Date.now() * 0.002) * 0.02) * 3;
+                const depth = (y - 80) / (CONFIG.CANVAS_HEIGHT - 80);
+
+                if (y + waveOffset > 80) {
+                    // Water colors - deeper = darker
+                    const blue = Math.floor(100 + depth * 100);
+                    const green = Math.floor(150 + depth * 50);
+                    ctx.fillStyle = `rgb(0, ${green}, ${blue})`;
+                    ctx.fillRect(x, y, blockSize, blockSize);
+
+                    // Add some sparkle pixels
+                    if (Math.random() < 0.001) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(x + 2, y + 2, 2, 2);
+                    }
+                }
+            }
+        }
+
+        // Pixel art waves on surface
+        ctx.fillStyle = '#60a5fa';
+        for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += 16) {
+            const waveY = 80 + Math.sin((x + Date.now() * 0.003) * 0.05) * 4;
+            ctx.fillRect(x, waveY, 8, 4);
+        }
+    }
+
+    // Draw pixel art fishing rod
+    function drawFishingRod() {
+        const centerX = CONFIG.CANVAS_WIDTH / 2;
+
+        // Rod body (brown pixels)
+        ctx.fillStyle = '#8B4513';
+        for (let i = 0; i < 8; i++) {
+            ctx.fillRect(centerX - 16 + i * 4, 20 + i * 8, 4, 8);
+        }
+
+        // Rod tip (darker brown)
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(centerX + 24, 52, 8, 4);
+        ctx.fillRect(centerX + 28, 48, 4, 8);
+    }
+
+    // Draw fishing line
+    function drawFishingLine(x1, y1, x2, y2) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    // Draw pixel art hook
+    function drawHook(x, y) {
+        // Hook body (silver pixels)
+        ctx.fillStyle = '#c0c0c0';
+        ctx.fillRect(x - 2, y - 2, 4, 4);
+
+        // Hook curve (darker silver)
+        ctx.fillStyle = '#a0a0a0';
+        ctx.fillRect(x - 4, y, 2, 2);
+        ctx.fillRect(x + 2, y, 2, 2);
+        ctx.fillRect(x - 2, y + 2, 2, 2);
+
+        // Hook point
+        ctx.fillStyle = '#808080';
+        ctx.fillRect(x, y + 4, 2, 2);
+    }
+
+    // Draw pixel art bubbles
+    function drawBubbles(progress) {
+        const bubbleCount = Math.floor(progress * 8);
+        ctx.fillStyle = '#ffffff';
+
+        for (let i = 0; i < bubbleCount; i++) {
+            const x = Math.floor((CONFIG.CANVAS_WIDTH / 2) + (Math.random() - 0.5) * 80);
+            const y = Math.floor(150 + progress * (CONFIG.CANVAS_HEIGHT - 200) + Math.random() * 40);
+            const size = Math.floor(Math.random() * 2) + 1;
+
+            // Pixel perfect bubbles
+            for (let bx = 0; bx < size; bx++) {
+                for (let by = 0; by < size; by++) {
+                    if (Math.random() > 0.3) { // Some transparency effect
+                        ctx.fillRect(x + bx * 2, y + by * 2, 2, 2);
+                    }
+                }
+            }
+        }
+    }
+
+    // Show fishing result
+    function showResult(fish) {
+        gameState.currentResult = fish;
+        gameState.totalFishes++;
+        gameState.totalTokens += fish.tokenReward;
+
+        // Update UI
+        elements.resultTitle.textContent = `${fish.emoji} ${fish.name}`;
+        elements.resultDescription.textContent = fish.description;
+
+        // Style based on rarity
+        elements.resultDisplay.className = `result ${fish.rarity}`;
+
+        // Show result
+        elements.resultDisplay.classList.remove('hidden');
+
+        // Show appropriate buttons
+        if (fish.rarity === 'legendary') {
+            elements.shareButton.classList.remove('hidden');
+        }
+        elements.playAgainButton.classList.remove('hidden');
+
+        // Update stats
+        updateStats();
+
+        // Save game state
+        saveGameState();
+
+        // Reset button
+        elements.fishButton.disabled = false;
+        elements.fishButton.classList.remove('loading');
+        elements.fishButton.textContent = '🎣 Mulai Memancing!';
+
+        gameState.isPlaying = false;
+    }
+
+    // Share result to Farcaster feed
+    async function shareResult() {
+        if (!gameState.currentResult) return;
+
+        try {
+            const castText = `Aku dapat ${gameState.currentResult.emoji} ${gameState.currentResult.name} di Fishy Fortune! ${gameState.currentResult.rarity === 'legendary' ? '🎉 LEGENDARY! +' + gameState.currentResult.tokenReward + ' tokens!' : ''}`;
+
+            if (window.farcasterSDK) {
+                await window.farcasterSDK.actions.composeCast({
+                    text: castText,
+                    embeds: [window.location.href]
+                });
+            } else {
+                // Fallback: copy to clipboard
+                await navigator.clipboard.writeText(castText);
+                alert('Teks share telah disalin ke clipboard!');
+            }
+        } catch (error) {
+            console.error('Failed to share result:', error);
+            alert('Gagal membagikan hasil. Coba lagi.');
+        }
+    }
+
+    // Reset game for another round
+    function resetGame() {
+        gameState.isPlaying = false;
+        gameState.currentResult = null;
+
+        elements.resultDisplay.classList.add('hidden');
+        elements.shareButton.classList.add('hidden');
+        elements.playAgainButton.classList.add('hidden');
+
+        elements.fishButton.disabled = false;
+        elements.fishButton.classList.remove('loading');
+        elements.fishButton.textContent = '🎣 Mulai Memancing!';
+
+        drawInitialScene();
+    }
+
+    // Update statistics display
+    function updateStats() {
+        elements.totalFishes.textContent = gameState.totalFishes;
+        elements.totalTokens.textContent = gameState.totalTokens;
+    }
+
+    // Save game state to localStorage
+    function saveGameState() {
+        try {
+            localStorage.setItem('fishy-fortune-state', JSON.stringify({
+                totalFishes: gameState.totalFishes,
+                totalTokens: gameState.totalTokens
+            }));
+        } catch (error) {
+            console.warn('Failed to save game state:', error);
+        }
+    }
+
+    // Load game state from localStorage
+    function loadGameState() {
+        try {
+            const saved = localStorage.getItem('fishy-fortune-state');
+            if (saved) {
+                const state = JSON.parse(saved);
+                gameState.totalFishes = state.totalFishes || 0;
+                gameState.totalTokens = state.totalTokens || 0;
+                updateStats();
+            }
+        } catch (error) {
+            console.warn('Failed to load game state:', error);
+        }
+    }
+
+    // Show error message
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ef4444;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        `;
+        errorDiv.textContent = message;
+        document.body.appendChild(errorDiv);
+
+        setTimeout(() => {
+            document.body.removeChild(errorDiv);
+        }, 5000);
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // Export for potential testing or debugging
+    window.FishyFortune = {
+        getGameState: () => ({ ...gameState }),
+        rollGacha: rollGacha,
+        resetGame: resetGame
+    };
+
+})();

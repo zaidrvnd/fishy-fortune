@@ -1,0 +1,33 @@
+{
+  "accountAssociation": {
+    "header": "PLACEHOLDER_HEADER",
+    "payload": "PLACEHOLDER_PAYLOAD",
+    "signature": "PLACEHOLDER_SIGNATURE"
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Fishy Fortune",
+    "iconUrl": "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fish-icon.png",
+    "homeUrl": "https://fishy-fortune.example.com",
+    "imageUrl": "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fishing-scene.png",
+    "buttonTitle": "🎮 Mulai Memancing",
+    "splashImageUrl": "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fish-icon.png",
+    "splashBackgroundColor": "#1e3a8a",
+    "description": "🐟 Game gacha memancing PIXEL ART ala Farcaster! Dapatkan ikan biasa, langka, atau LEGENDARY dengan token bonus! 🎮",
+    "webhookUrl": "https://fishy-fortune.example.com/api/webhook",
+    "requiredChains": [],
+    "requiredCapabilities": ["actions.ready", "actions.composeCast"],
+    "primaryCategory": "games",
+    "tags": ["game", "gacha", "fishing", "pixel-art", "retro", "miniapp", "farcaster", "fish"],
+    "heroImageUrl": "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/hero-fishing.png",
+    "tagline": "🎮 PIXEL FISHING GACHA! 🐠",
+    "ogTitle": "🐟 Fishy Fortune - Pixel Art Fishing Gacha 🎮",
+    "ogDescription": "Mainkan game memancing PIXEL ART yang retro! Dapatkan ikan LEGENDARY dan viral di Farcaster! 🎣✨",
+    "ogImageUrl": "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/fishing-scene.png",
+    "screenshotUrls": [
+      "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/screenshot1.png",
+      "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/screenshot2.png",
+      "https://raw.githubusercontent.com/samuelyuan/Pixel-Fishing/master/assets/screenshot3.png"
+    ]
+  }
+}
